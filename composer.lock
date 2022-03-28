@@ -1,0 +1,66 @@
+{
+    "_readme": [
+        "This file locks the dependencies of your project to a known state",
+        "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
+        "This file is @generated automatically"
+    ],
+    "content-hash": "55920dff0a177e0b255f5ea190f84ea4",
+    "packages": [
+        {
+            "name": "arthurkushman/php-wss",
+            "version": "1.2.6",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/arthurkushman/php-wss.git",
+                "reference": "2d58e07ab02e1321f30c93ca8e17a33cd7e9652f"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/arthurkushman/php-wss/zipball/2d58e07ab02e1321f30c93ca8e17a33cd7e9652f",
+                "reference": "2d58e07ab02e1321f30c93ca8e17a33cd7e9652f",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.5.0"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "^7"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "WSSC\\": "src",
+                    "WSSCTEST\\": "tests"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "description": "Web-socket server with URI parse and multi-process support",
+            "homepage": "https://github.com/arthurkushman/php-wss",
+            "keywords": [
+                "php",
+                "processes",
+                "routes",
+                "web socket",
+                "web socket server",
+                "web-sockets"
+            ],
+            "support": {
+                "issues": "https://github.com/arthurkushman/php-wss/issues",
+                "source": "https://github.com/arthurkushman/php-wss/tree/1.2.6"
+            },
+            "time": "2018-02-09T14:17:18+00:00"
+        }
+    ],
+    "packages-dev": [],
+    "aliases": [],
+    "minimum-stability": "stable",
+    "stability-flags": [],
+    "prefer-stable": false,
+    "prefer-lowest": false,
+    "platform": [],
+    "platform-dev": [],
+    "plugin-api-version": "2.2.0"
+}

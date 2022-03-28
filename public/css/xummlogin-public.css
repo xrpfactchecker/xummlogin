@@ -1,0 +1,142 @@
+/**
+ * All of the CSS for your public-facing functionality should be
+ * included in this file.
+ */
+form[id*="login"] p, #loginform p,
+form[id*="login"] div, #loginform div,
+form[id*="login"] > label, #loginform > label,
+#nav{
+  display: none;
+}
+.xl-display-form form[id*="login"] p, .xl-display-form #loginform p,
+.xl-display-form form[id*="login"] div, .xl-display-form #loginform div,
+.xl-display-form form[id*="login"] > label, .xl-display-form #loginform > label{
+  display: block;
+}
+form[id*="login"] p.xl-display-show, #loginform p.xl-display-show{
+  display: block;
+}
+#loginform p.xl-login-note{
+  text-align: center;
+}
+.xl-display-form #loginform p.xl-login-note{
+  margin-bottom: 20px;
+}
+xl-login-note
+#loginform button{
+  margin-top: 10px;
+}
+#loginform .xl-button.xl-button-signin svg{
+  width: 100%;
+  height: auto;
+}
+.toggle_form.hide{
+  display: none;
+}
+span.xl-error{
+  display: block;
+  color: red;
+}
+.xl-messages{
+  cursor: pointer;
+}
+.xl-messages{
+    border: 1px solid black;
+    border-radius: 5px;
+    padding: 10px;
+    margin: 10px 0;
+}
+.xl-messages.xl-error{
+    background-color: rgb(208, 52, 44);
+    background-color: rgba(208, 52, 44, .3);
+    border-color: rgb(208, 52, 44);
+}
+.xl-messages.xl-warning{
+    background-color: rgb(238, 210, 2);
+    background-color: rgba(238, 210, 2, .3);
+    border-color: rgb(238, 210, 2);
+}
+.xl-messages.xl-success{
+    background-color: rgb(75,181,67);
+    background-color: rgba(75,181,67, .3);
+    border-color: rgb(75,181,67);
+}
+.xl-stats span::after{
+  line-height: 16px;
+  font-size: 16px;
+  content: '\2022';
+  margin: 0 5px;
+}
+.xl-stats span:last-child::after{
+  content: '';
+}
+.xl-card{
+  font-size: 12px;
+  color: white;
+  width: 270px;
+  min-height: 108px;
+  border: 2px solid white;
+  border-radius: 10px;
+  margin: 5px;
+  background-color: #222222;
+  overflow: hidden;
+  box-shadow: 0px 0px 5px #888888;
+}
+.xl-card a{
+  color: white;
+  text-decoration: none;
+}
+.xl-card .xl-card-header{
+  font-family: Courier;
+  color: grey;
+  background-color: black;
+  padding: 3px 10px;
+}
+.xl-card .xl-card-header strong{
+  color: white;
+}
+.xl-card .xl-card-body{
+  padding: 5px 10px;
+}
+.xl-card .xl-card-body div{
+  line-height: 15.5px;
+}
+.xl-card .xl-card-avatar{
+  float: left;
+  width: 65px;
+  margin-right: 10px;  
+}
+.xl-card .xl-card-avatar img{
+  width: 100%;
+  border: 0 none;
+}
+.xl-is-user{
+  font-weight: bold;
+}
+.xl-richlist{
+  text-align: center;
+}
+.xl-richlist tbody tr th{
+  text-align: center;
+}
+.xl-richlist-tiers > tbody > tr > td{
+  width: 25%;
+}
+.xl-richlist-tiers > tbody > tr:first-child{
+  cursor: pointer;
+}
+.xl-richlist-tiers > tbody > tr:first-child:hover{
+  background-color: rgba(255, 255, 255, .15);
+}
+.xl-richlist-tiers > tbody > tr > td:last-child,
+.xl-richlist-tiers > tbody > tr > td td:last-child ,
+.xl-richlist-flat > tbody > tr > td:last-child{
+  text-align: right;
+}
+.xl-richlist-tiers > tbody > tr > td td:nth-child(2) ,
+.xl-richlist-flat > tbody > tr > td:nth-child(2){
+  text-align: left;
+}
+.xl-richlist-tiers > tbody > tr > td td:first-child{
+  text-align: center;
+}

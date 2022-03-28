@@ -1,0 +1,39 @@
+/**
+ * All of the CSS for your admin-specific functionality should be
+ * included in this file.
+ */
+.xl-short-code-table .short-code-params{
+  width: 75%;
+}
+.xl-short-code-table tr.params th,
+.xl-short-code-table tr.params td{
+  padding-top: 0;
+}
+.xl-short-code-table tr.params .short-code-params th,
+.xl-short-code-table tr.params .short-code-params td{
+  padding-left: 0;
+  padding-top: 0;
+  padding-bottom: 5px;
+}
+.short-code-params{
+  padding-top: 5px;
+}
+.xl-short-code-table .short-code-params tr td,
+.xl-short-code-table .short-code-params tr td{
+  width: 15%;
+}
+/*Note columns needs to be wider*/
+.xl-short-code-table .short-code-params tr td:last-child,
+.xl-short-code-table .short-code-params tr td:last-child{
+  width: 55%;
+}
+.xl-stats span::after{
+  content: '\2022';
+  margin-left: 10px;
+  margin-right: 10px;
+}
+.xl-stats span:last-child::after{
+  content: '';
+  margin-left: 0px;
+  margin-right: 0px;
+}
