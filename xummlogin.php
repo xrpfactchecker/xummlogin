@@ -16,7 +16,7 @@
  * Plugin Name:       XUMM Login
  * Plugin URI:        https://xummlogin.xrplstatus.com/
  * Description:       Enable WordPress logins using XUMM as the signing request to establish a new session. An XUMM API account is required for your API Key and API Secret.
- * Version:           0.9.14
+ * Version:           1.0.0
  * Author:            XRP Fact Checker
  * Author URI:        https://twitter.com/xrpfactchecker
  * License:           GPL-2.0+
@@ -35,7 +35,7 @@ if ( ! defined( 'WPINC' ) ) {
  * Start at version 1.0.0 and use SemVer - https://semver.org
  * Rename this for your plugin and update it as you release new versions.
  */
-define( 'XUMMLOGIN_VERSION', '0.9.14' );
+define( 'XUMMLOGIN_VERSION', '1.0.0' );
 
 /**
  * OpenSSL Encryption method
@@ -45,7 +45,7 @@ define( 'AES_METHOD', 'aes-256-cbc' );
 /**
  * Default fee for the XRPL transaction if none are provided in the settings
  */
-define( 'DEFAULT_FEE_TX', '12' );
+defined('DEFAULT_FEE_TX') or define('DEFAULT_FEE_TX', '12');
 
 /**
  * Default fee in XRP drops for the voting

@@ -100,7 +100,7 @@ $balances = [];
 if( $ledger_index_end > 0 && !$has_final_balances ){
 
   // Fetch all balances for this trustline for the end ledger from the xrpl api
-  $balances = fetch_final_tls($voters_trustline, xrpl_currency($voters_currency), $ledger_index_end);
+  $balances = fetch_final_tls($voters_trustline, $voters_currency, $ledger_index_end);
 
   // Save to file
   if( count($balances) > 0 ){
@@ -111,7 +111,7 @@ if( $ledger_index_end > 0 && !$has_final_balances ){
 else{
 
   // Fetch in progress balances for this trustline from xrpscan api
-  $balances = fetch_tls($voters_trustline, xrpl_currency($voters_currency));
+  $balances = fetch_tls($voters_trustline, $voters_currency);
 
   // Save to file
   if( count($balances) > 0 ){
@@ -124,6 +124,9 @@ else{
  * STEP 3 - PARSE VOTING AND HOLDER BALANCES TO CALCULATE THE RESULTS IF VOTING IS ACTIVE
  *
  */
+
+// Array to hold all results, using the wallet as the key and their vote as the value
+$results = [];
 
 if( $has_active_voting ){
   // Check if final votes file exists already so we only run it once
@@ -142,8 +145,7 @@ if( $has_active_voting ){
     $votes    = count($votes) > 0 ? $votes : (array)load_data($vote_file, $active_voting);
     $balances = count($balances) > 0 ? $balances : (array)load_data($balance_file, $active_voting_file);
 
-    // Array to hold all results, using the wallet as the key and their vote as the value
-    $results       = [];
+    // Keep track of counts
     $total_votes   = 0;
     $total_balance = 0;
 
