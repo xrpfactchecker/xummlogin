@@ -115,7 +115,7 @@ function fetch_tls($account, $currency){
   $api_url = 'https://api.xrpscan.com/api/v1/account/' . $account . '/trustlines';
 
   // Get proper currency code for when it is more than 3 characters
-  $xrpl_currency = xrpl_currency( $currency );
+  $project_currency = xrpl_currency( $currency );
 
   // Config
   $config = [
@@ -127,28 +127,37 @@ function fetch_tls($account, $currency){
   ];
 
   // Set a one time request to XRPScan's API
-  $result     = file_get_contents($api_url, false, stream_context_create($config));
-  $trustlines = json_decode($result);
+  $result             = file_get_contents($api_url, false, stream_context_create($config));
+  $fetched_trustlines = json_decode($result);
 
-  // Save cached version of the trustline
-  save_data('trustlines_' . strtolower($currency), $trustlines);  
+  // Go through lines, add to balance and keep track of trustlines
+  $balances   = [];
+  $trustlines = [];
 
-  // Go through lines and add to balance
-  $balances = [];
-  if( is_array( $trustlines ) ){
-    // Go through each and add to balances as needed
-    foreach ($trustlines as $index => $trustline) {
+  // Go through each and add to balances as needed
+  if( is_array( $fetched_trustlines ) ){
+    foreach ($fetched_trustlines as $index => $trustline) {
       
       // Set vars
       $tl_currency = $trustline->specification->currency;
       $tl_wallet   = $trustline->specification->counterparty;
       $tl_balance  = $trustline->state->balance;
 
-      // Add to balances if their balance is greater than 0 and that this is the right currency
-      if( (float)$tl_balance * -1 > 0 && $tl_currency == $xrpl_currency){
-        $balances[$tl_wallet] = (float)$tl_balance * -1;
+      // Make sure it matches right currency
+      if( $tl_currency == $project_currency){
+
+        // Add address to trustline list
+        $trustlines[] = $tl_wallet;
+
+        // Add to balance if greater than 0
+        if( (float)$tl_balance * -1 > 0 ){
+          $balances[$tl_wallet] = (float)$tl_balance * -1;
+        }
       }
     }
+
+    // Save trustlines
+    save_data('trustlines_' . strtolower($currency), $trustlines);  
   }
 
   // Return balances
@@ -161,7 +170,7 @@ function fetch_final_tls($account, $currency, $ledger_index = 0){
   $debug = false;
 
   // Get proper currency code for when it is more than 3 characters
-  $xrpl_currency = xrpl_currency( $currency );
+  $project_currency = xrpl_currency( $currency );
 
   // To keep track of the number of calls made, for debugging purposes only
   $call_count = 0;
@@ -214,7 +223,7 @@ function fetch_final_tls($account, $currency, $ledger_index = 0){
       // Loop through transactions and get the ones we're interested in
       foreach ($trustlines as $trustline) {
         // Add to balances if their balance is greater than 0 and that this is the right currency
-        if( (float)$trustline->balance * -1 > 0 && $trustline->currency == $xrpl_currency){
+        if( (float)$trustline->balance * -1 > 0 && $trustline->currency == $project_currency){
           $balances[$trustline->account] = (float)$trustline->balance * -1;
         }
       }
