@@ -131,6 +131,11 @@
                   <td>No</td>
                   <td>Whether to return a full anchor tag or just a URL. Default is <code>true</code>.</td>
                 </tr>
+                <tr>
+                  <td><code>check</code></td>
+                  <td>No</td>
+                  <td>Use this param to check if the logged in user has the trustline setup. Using this will supersede the TrustSet link. Default is <code>false</code>.</td>
+                </tr>
               </tbody>
             </table>
           </td>

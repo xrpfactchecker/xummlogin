@@ -462,18 +462,44 @@ class Xummlogin_ShortCodes{
   }
 
 	public function xummlogin_trustline_link( $atts = array() ) {
+    global $xumm_messaging;
 
     // Merge params
     extract(shortcode_atts(array(
      'anchor'   => 'true',
      'label'    => __('Set Trustline'),
+     'check'    => 'false',
     ), $atts));
-    
-    // Build URL so set the trustline
-    $url = '?xl-' . ACTION_TRUSTLINE;
 
-    // We're done, return the the whole anchor or just the link
-    $content = ($anchor == 'true' ? '<a href="' . $url . '" class="xl-button xl-button-' . ACTION_TRUSTLINE . '">' . $label . '</a>' : $url);
+    // Default
+    $content = '';
+    
+    // See if we're simply setting the TrustSet link or we're checking if the logged in user has the line set
+    if( $check == 'true' ){
+      // Get saved currency, all trustlines and the user's wallet
+      $trustline_currency = get_option('xummlogin_trustline_currency');
+      $trustlines         = (array)Xummlogin_utils::xummlogin_load_data('trustlines_' . strtolower($trustline_currency));
+      $wallet             = Xummlogin_utils::xummlogin_get_user_wallet();
+
+      // Check if the trustline is set and if not send an error
+      $has_trustline = in_array( $wallet, $trustlines );
+      if( !$has_trustline ){
+        // Get the trustline link using its shortcode
+        $trustline_link = do_shortcode('[xummline anchor="false"]');
+
+        // Add error to the messaging and call its short code to return an error
+        $xumm_messaging->add('error', ACTION_TRUSTLINE, '0', sprintf( __('You do not have the trustline set. <a href="%s">Set Trustline</a>'), $trustline_link) );      
+        $content = do_shortcode('[xummmessages]');
+      }
+    }
+    else{
+      // Build URL so set the trustline
+      $url = '?xl-' . ACTION_TRUSTLINE;
+
+      // We're done, return the the whole anchor or just the link
+      $content = ($anchor == 'true' ? '<a href="' . $url . '" class="xl-button xl-button-' . ACTION_TRUSTLINE . '">' . $label . '</a>' : $url);
+    }
+
     return $content;
 	}
 
