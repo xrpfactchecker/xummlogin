@@ -707,7 +707,7 @@ class Xummlogin_ShortCodes{
     // If a test message was passed, force it and stop
     if( $message != '' ){
       $try_again     = ( $retry == 'true' ) ? ' ' . __('<a href="">Try again</a> shortly.') : '';
-      $user_message .= '<div title="' . $title_message . '" class="xl-messages xl-' . $type . ' xl-' . $type . '-' . $feature . '"><p>' . $message . $try_again . '</p></div>';
+      $user_message  = '<div title="' . $title_message . '" class="xl-messages xl-' . $type . ' xl-' . $type . '-' . $feature . '"><p>' . $message . $try_again . '</p></div>';
     }
     // If not process as normal 
     else{
