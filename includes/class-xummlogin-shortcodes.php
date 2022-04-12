@@ -43,54 +43,118 @@ class Xummlogin_ShortCodes{
     add_shortcode('xummrichlist', [$this, 'xummlogin_rich_list']);
 	}
 
+  public function xummlogin_force_login( $content ){
+    global $xumm_messaging;
+
+    // Add error message to the messaging class
+    $xumm_messaging->add('error', ACTION_TRUSTLINE, '0', __('You must be logged in to access this content. Login with below your XUMM wallet.') );      
+    
+    // Get the messaging bo and login button using their short code
+    $messages      = do_shortcode('[xummmessages]');
+    $action_button = do_shortcode('[xummlogin]');
+
+    return $messages . '<div>' . $action_button . '</div>';
+  }
+
+  public function xummlogin_force_trustline( $content ){
+    global $xumm_messaging;
+
+    // Add error message to the messaging class
+    $xumm_messaging->add('error', ACTION_TRUSTLINE, '0', __('You do not have the trustline set. Set the trustline below using your XUMM wallet.') );      
+    
+    // Get the messaging bo and login button using their short code
+    $messages      = do_shortcode('[xummmessages]');
+    $action_button = do_shortcode('[xummline]');
+
+    return $messages . '<div>' . $action_button . '</div>';
+  }
+
   public function xummlogin_button( $atts = array() ) {
+    global $xumm_messaging;
 
     // Merge params
     extract(shortcode_atts(array(
-     'form'     => 'false',
-     'return'   => 'button',
-     'label'    => __('XUMM Signin'),
+     'form'      => 'false',
+     'trustline' => 'false',
+     'force'     => 'false',
+     'return'    => 'button',
+     'label'     => __('XUMM Signin'),
     ), $atts));
 
-    // Include the form or just the button
-    $show_form = $form != 'false';
+    // Get the logged in wallet, if any
+    $wallet = Xummlogin_utils::xummlogin_get_user_wallet();
 
-    // Build URL for the signin
-    $url = '?xl-' . ACTION_SIGNIN;
+    // Setup login button if we don't have a logged in user
+    if( $wallet == '' ){
 
-    // Add redirect if we have one
-    $redirect_to = isset($_GET['redirect_to']) ? $_GET['redirect_to'] : '';
-    if( $redirect_to != '' ){
-      $url = add_query_arg( 'redirect', urlencode($redirect_to), $url);
+      // If forcing is requested stop content
+      if( $force == 'true' ){
+        add_filter ('the_content', [$this, 'xummlogin_force_login'], 100);
+        return;
+      }
+
+      // Build URL for the signin
+      $url = '?xl-' . ACTION_SIGNIN;
+
+      // Add redirect if we have one
+      $redirect_to = isset($_GET['redirect_to']) ? $_GET['redirect_to'] : '';
+      if( $redirect_to != '' ){
+        $url = add_query_arg( 'redirect', urlencode($redirect_to), $url);
+      }
+
+      // Check what we need to return
+      if( $return == 'url' ){
+        $signin_cta = $url;
+      }
+      else{
+        // Get the label if we're returning a button or anchor
+        $cta_label  = ( $return == 'button' ) ? file_get_contents(dirname(plugin_dir_path( __FILE__ )) .'/public/images/signin.svg') : $label;
+        $signin_cta = '<a href="' . $url . '" class="xl-button xl-button-' . ACTION_SIGNIN . '">' . $cta_label . '</a>';
+      }
+
+      // Add standard form if enabled
+      if( $form != 'false' ){
+
+        // Get wordpress login form
+        $login_form = wp_login_form(['echo' => false]);
+
+        // Get position of where to insert the XUMM button
+        $pos = strpos($login_form, '<p class="login-remember">'); // NOT IDEAL
+
+        // Insert XUMM Login button
+        $login_form = substr_replace($login_form, $signin_cta, $pos, 0);
+
+        return $login_form;
+      }
+      else{
+        return $signin_cta;
+      }
     }
+    // If the user is logged in, check the trustline if needed
+    else if( $wallet != '' && $trustline == 'true' ){
+      // Get saved currency, all trustlines and the user's wallet
+      $trustline_currency = get_option('xummlogin_trustline_currency');
+      $trustlines         = (array)Xummlogin_utils::xummlogin_load_data('trustlines_' . strtolower($trustline_currency));
 
-    // Check what we need to return
-    if( $return == 'url' ){
-      $signin_cta = $url;
-    }
-    else{
+      // Check if the trustline is set and if not send an error
+      $has_trustline = in_array( $wallet, $trustlines );
+      if( !$has_trustline ){
 
-      // Get the label if we're returning a button or anchor
-      $cta_label  = ( $return == 'button' ) ? file_get_contents(dirname(plugin_dir_path( __FILE__ )) .'/public/images/signin.svg') : $label;
-      $signin_cta = '<a href="' . $url . '" class="xl-button xl-button-' . ACTION_SIGNIN . '">' . $cta_label . '</a>';
-    }
+        // If forcing is requested stop content
+        if( $force == 'true' ){
+          add_filter ('the_content', [$this, 'xummlogin_force_trustline'], 100);
+          return;
+        }
 
-    // Add standard form if enabled
-    if( $show_form ){
+        // Get the trustline link using its shortcode
+        $trustline_link = do_shortcode('[xummline anchor="false"]');
 
-      // Get wordpress login form
-      $login_form = wp_login_form(['echo' => false]);
+        // Add error to the messaging and call its short code to return an error
+        $xumm_messaging->add('error', ACTION_TRUSTLINE, '0', sprintf( __('You do not have the trustline set. <a href="%s">Set Trustline</a>'), $trustline_link) );      
+        $content = do_shortcode('[xummmessages]');
 
-      // Get position of where to insert the XUMM button
-      $pos = strpos($login_form, '<p class="login-remember">'); // NOT IDEAL
-
-      // Insert XUMM Login button
-      $login_form = substr_replace($login_form, $signin_cta, $pos, 0);
-
-      return $login_form;
-    }
-    else{
-      return $signin_cta;
+        return $content;
+      }
     }
   }
 

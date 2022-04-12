@@ -490,7 +490,7 @@ class Xummlogin_XUMM{
 			return;
 		}
 		else{
-			$xumm_messaging->add('success', ACTION_TRUSTLINE, '0', __('The trustline was set successfully!'));
+			$xumm_messaging->add('success', ACTION_TRUSTLINE, '0', __('The trustline was set successfully! Please wait 5-10 minutes for it to reflect here on the site.'));
 			return;
 		}
 	}

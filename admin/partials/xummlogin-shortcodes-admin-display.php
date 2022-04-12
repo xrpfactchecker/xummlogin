@@ -43,6 +43,16 @@
                   <td>To include an option for the user to login using their username and password. Default is <code>false</code>.</td>
                 </tr>
                 <tr>
+                  <td><code>force</code></td>
+                  <td>No</td>
+                  <td>To force the user to be logged in to view the content. Default is <code>false</code>.</td>
+                </tr>
+                <tr>
+                  <td><code>trustline</code></td>
+                  <td>No</td>
+                  <td>To force the user to be have the trustline set to view the content. Default is <code>false</code>. This is only checked of the user is logged in.</td>
+                </tr>                                
+                <tr>
                   <td><code>return</code></td>
                   <td>No</td>
                   <td>To use the standard XUMM <code>button</code>, an <code>anchor</code> link or simply get the <code>url</code>. Default is <code>button</code>.</td>
