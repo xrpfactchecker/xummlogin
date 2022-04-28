@@ -126,6 +126,9 @@ class Xummlogin_XUMM{
 				case 'xl-' . ACTION_SIGNIN:		
 					$this::xummlogin_prepare_signin();
 					break;
+				case 'xl-' . ACTION_SIGNOUT:		
+					$this::xummlogin_process_signout();
+					break;
 				case 'xl-' . ACTION_TRUSTLINE:		
 					$this::xummlogin_prepare_trustline();
 					break;
@@ -172,6 +175,21 @@ class Xummlogin_XUMM{
 
 	  // Post request to the XUMM API
 	  Xummlogin_utils::xummlogin_post_to_xumm($body, $return_url, ACTION_SIGNIN);
+	}
+
+	public function xummlogin_process_signout() {
+
+		// Clear WP cookies
+		wp_clear_auth_cookie();
+
+		// Clear any potential non-user cookie from before
+		setcookie('xrpl-r-address', '', time()-3600, '/');
+		if (!isset($_COOKIE['xrpl-r-address'])){
+			$_COOKIE['xrpl-r-address'] = ''; // workaround to prevent redirect to read cookie
+		}
+
+		wp_redirect('/');
+		exit;
 	}
 	
 	public function xummlogin_prepare_trustline() {
@@ -446,7 +464,7 @@ class Xummlogin_XUMM{
 			}
 
 			// Authenticate the user if we have one, otherwise save the wallet address in a session
-			if( $user_id > 0 ){
+			if( (int)$user_id > 0 ){
 		    wp_clear_auth_cookie();
 		    wp_set_current_user($user_id);
 		    wp_set_auth_cookie($user_id);

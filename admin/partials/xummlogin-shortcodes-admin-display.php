@@ -45,17 +45,63 @@
                 <tr>
                   <td><code>force</code></td>
                   <td>No</td>
-                  <td>To force the user to be logged in to view the content. Default is <code>false</code>.</td>
+                  <td>To force the user to be logged in to view the content. Default is <code>false</code>. When force is used, only the signin button/link OR the content will be outputted, not both.</td>
                 </tr>
                 <tr>
                   <td><code>trustline</code></td>
                   <td>No</td>
                   <td>To force the user to be have the trustline set to view the content. Default is <code>false</code>. This is only checked of the user is logged in.</td>
-                </tr>                                
+                </tr>
+                <tr>
+                  <td><code>always</code></td>
+                  <td>No</td>
+                  <td>Whether to always return the login button/url even if the user is signed in. Default is <code>false</code>.</td>
+                </tr>                
                 <tr>
                   <td><code>return</code></td>
                   <td>No</td>
                   <td>To use the standard XUMM <code>button</code>, an <code>anchor</code> link or simply get the <code>url</code>. Default is <code>button</code>.</td>
+                </tr>
+                <tr>
+                  <td><code>label</code></td>
+                  <td>No</td>
+                  <td>Label to use when using an anchor. Default is <code>XUMM Signin</code>.</td>
+                </tr>
+              </tbody>
+            </table>            
+          </td>
+        </tr>
+        <tr>
+          <th scope="row"><label>XUMM Logout</label></th>
+          <td><code>[xummlogout]</code></td>
+        </tr>
+        <tr class="params">
+          <th scope="row"></th>
+          <td>
+            Use to output the a logout button. The user will be redirected to the homepage after logging out.
+            <table class="short-code-params">
+              <thead>
+                <tr>
+                  <th>Params</th>
+                  <th>Required</th>
+                  <th>Note</th>
+                </tr>
+              </thead>
+              <tbody>  
+                <tr>
+                  <td><code>confirm</code></td>
+                  <td>No</td>
+                  <td>To prompt the user to confirm or not. Only works if an anchor tag is returned. Default is <code>true</code>.</td>
+                </tr>           
+                <tr>
+                  <td><code>anchor</code></td>
+                  <td>No</td>
+                  <td>Whether to return a full anchor tag or just a URL. Default is <code>true</code>.</td>
+                </tr>
+                <tr>
+                  <td><code>label</code></td>
+                  <td>No</td>
+                  <td>Label to use when using an anchor. Default is <code>Signout</code>.</td>
                 </tr>
               </tbody>
             </table>            

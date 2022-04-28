@@ -32,6 +32,7 @@ class Xummlogin_ShortCodes{
     $this->version     = $version;
 
 		add_shortcode('xummlogin'   , [$this, 'xummlogin_button']);
+		add_shortcode('xummlogout'  , [$this, 'xummlogin_logout']);
 		add_shortcode('xummline'    , [$this, 'xummlogin_trustline_link']);
 		add_shortcode('xummpayment' , [$this, 'xummlogin_payment_link']);
 		add_shortcode('xummvoting'  , [$this, 'xummlogin_vote_link']);
@@ -76,6 +77,7 @@ class Xummlogin_ShortCodes{
     extract(shortcode_atts(array(
      'form'      => 'false',
      'trustline' => 'false',
+     'always'    => 'false',
      'force'     => 'false',
      'return'    => 'button',
      'label'     => __('XUMM Signin'),
@@ -84,16 +86,42 @@ class Xummlogin_ShortCodes{
     // Get the logged in wallet, if any
     $wallet = Xummlogin_utils::xummlogin_get_user_wallet();
 
-    // Setup login button if we don't have a logged in user
-    if( $wallet == '' ){
-
-      // If forcing is requested stop content
+    // If forcing is requested stop content
+    if( $wallet == '' ){      
       if( $force == 'true' ){
         add_filter ('the_content', [$this, 'xummlogin_force_login'], 100);
         return;
       }
+    }
+    // If the user is logged in, check the trustline if needed
+    else if( $wallet != '' && $trustline == 'true' ){
+      // Get saved currency, all trustlines and the user's wallet
+      $trustline_currency = get_option('xummlogin_trustline_currency');
+      $trustlines         = (array)Xummlogin_utils::xummlogin_load_data('trustlines_' . strtolower($trustline_currency));
 
-      // Build URL for the signin
+      // Check if the trustline is set and if not send an error
+      $has_trustline = in_array( $wallet, $trustlines );
+      if( !$has_trustline ){
+
+        // If forcing is requested stop content
+        if( $force == 'true' ){
+          add_filter ('the_content', [$this, 'xummlogin_force_trustline'], 100);
+          return;
+        }
+
+        // Get the trustline link using its shortcode
+        $trustline_link = do_shortcode('[xummline anchor="false"]');
+
+        // Add error to the messaging and call its short code to return an error
+        $xumm_messaging->add('error', ACTION_TRUSTLINE, '0', sprintf( __('You do not have the trustline set. <a href="%s">Set Trustline</a>'), $trustline_link) );      
+        $content = do_shortcode('[xummmessages]');
+
+        return $content;
+      }
+    }
+
+    // Build URL for the signin if force wasn't requested
+    if( $wallet == '' || $always == 'true' ){
       $url = '?xl-' . ACTION_SIGNIN;
 
       // Add redirect if we have one
@@ -130,32 +158,31 @@ class Xummlogin_ShortCodes{
         return $signin_cta;
       }
     }
-    // If the user is logged in, check the trustline if needed
-    else if( $wallet != '' && $trustline == 'true' ){
-      // Get saved currency, all trustlines and the user's wallet
-      $trustline_currency = get_option('xummlogin_trustline_currency');
-      $trustlines         = (array)Xummlogin_utils::xummlogin_load_data('trustlines_' . strtolower($trustline_currency));
+  }
 
-      // Check if the trustline is set and if not send an error
-      $has_trustline = in_array( $wallet, $trustlines );
-      if( !$has_trustline ){
+  public function xummlogin_logout( $atts = array() ) {
+    global $xumm_messaging;
 
-        // If forcing is requested stop content
-        if( $force == 'true' ){
-          add_filter ('the_content', [$this, 'xummlogin_force_trustline'], 100);
-          return;
-        }
+    // Merge params
+    extract(shortcode_atts(array(
+     'confirm'   => 'true',
+     'anchor'    => 'true',
+     'label'     => __('Signout'),
+    ), $atts));
 
-        // Get the trustline link using its shortcode
-        $trustline_link = do_shortcode('[xummline anchor="false"]');
+    // Set URL
+    $url = '?xl-' . ACTION_SIGNOUT;
 
-        // Add error to the messaging and call its short code to return an error
-        $xumm_messaging->add('error', ACTION_TRUSTLINE, '0', sprintf( __('You do not have the trustline set. <a href="%s">Set Trustline</a>'), $trustline_link) );      
-        $content = do_shortcode('[xummmessages]');
-
-        return $content;
-      }
+    // Check what we need to return
+    if( $anchor != 'true' ){
+      $signout_cta = $url;
     }
+    else{
+      $confirm_prompt = ( $confirm == 'true' ) ? ' onclick="return confirm(\'' . __('Are you sure?') . '\');"' : '';
+      $signout_cta = '<a href="' . $url . '" class="xl-button xl-button-' . ACTION_SIGNIN . '"'. $confirm_prompt . '>' . $label . '</a>';
+    }
+
+    return $signout_cta;
   }
 
   public function xummlogin_user_info( $atts = array() ) {
@@ -333,7 +360,7 @@ class Xummlogin_ShortCodes{
         }
         
         // Get the signin link from the short code
-        $signin_url = do_shortcode('[xummlogin return="url"]');
+        $signin_url = do_shortcode('[xummlogin always="true" return="url"]');
 
         // build the card's markup
         $holders_card = 
