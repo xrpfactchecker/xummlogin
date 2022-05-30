@@ -88,5 +88,25 @@ class Database {
 
     return $option_value;
   }
+
+  /**
+  *
+  * Get WordPress option
+  *
+  * @param string $query name
+  * @return the array of result
+  */
+  function wp_get_results($query) {
+    $result  = $this->query($query);
+    $results = [];
+
+    if( $result->num_rows > 0 ){
+      while ($row = mysqli_fetch_assoc($result)) {
+        $results[] = $row;
+      }
+    }
+
+    return $results;
+  }
 }
 ?>

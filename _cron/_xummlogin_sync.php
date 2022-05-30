@@ -20,6 +20,19 @@ require_once __DIR__ . '/../vendor/autoload.php';
 // Used to calculate a tx time
 const RIPPLE_EPOCH = 946684800; // Jan 2000 00:00:00 UTC
 
+// Load external child cron
+$external_crons = ['xummlms'];
+foreach( $external_crons as $cron_index => $cron_name ){
+  $include_file = '../../' . $cron_name . '/_cron/_' . $cron_name . '.php';
+
+  if( file_exists( $include_file ) ){
+    require_once $include_file;
+  }
+  else{
+    unset( $external_crons[ $cron_index ] );
+  }
+}
+
 // Connect to DB and check that we have an active voting in place
 $database = new Database(DB_HOST, DB_USER, DB_PASSWORD, DB_NAME);
 
@@ -193,6 +206,20 @@ if( $has_active_voting ){
     // Save to file
     $filetype = $ledger_index_end > 0 ? 'results-final' : 'results';
     save_data($filetype, $results, $active_voting);
+  }
+}
+
+/**
+ *
+ * ADDITIONAL SYNCING
+ *
+ */
+
+foreach( $external_crons as $cron_index => $cron_name ){
+  $function_name = 'run_' . $cron_name . '_cron';
+
+  if( function_exists( $function_name ) ){
+    call_user_func( $function_name );
   }
 }
 
