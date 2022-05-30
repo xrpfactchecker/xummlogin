@@ -80,6 +80,9 @@ class Xummlogin_Admin {
 		add_action( 'personal_options_update', array( $this, 'xl_save_custom_user_profile_fields' ) );
 		add_action( 'edit_user_profile_update', array( $this, 'xl_save_custom_user_profile_fields' ) );
 		add_action( 'user_register', array( $this, 'xl_save_custom_user_profile_fields' ) );
+
+		// Include the XRPL Address field in the user search
+		add_action('pre_user_query', array( $this, 'xl_extend_user_search' ) );
 	}
 
 	public function xummlogin_admin_menu(){
@@ -87,6 +90,25 @@ class Xummlogin_Admin {
     add_submenu_page('xumm-login', 'Settings', 'Settings', 'manage_options', 'xumm-login' );
     add_submenu_page('xumm-login', 'Voting', 'Voting Tool', 'manage_options', 'xumm-login-voting', [$this, 'xummlogin_votings'] );
     add_submenu_page('xumm-login', 'Short Codes', 'Short Codes', 'manage_options', 'xumm-login-shortcodes', [$this, 'xummlogin_shortcodes'] );
+	}
+
+	function xl_extend_user_search( $query ){
+		// make sure that this code will be applied only for user search
+		if ( $query->query_vars['search'] ){
+			$search_query = trim( $query->query_vars['search'], '*' );
+			if ( $_REQUEST['s'] == $search_query ){
+				global $wpdb;
+
+				// add search by xrpl address
+				$query->query_from .= " JOIN {$wpdb->usermeta} xrpl_address ON xrpl_address.user_id = {$wpdb->users}.ID AND xrpl_address.meta_key = 'xrpl-r-address'";
+
+				// what fields to include in the search
+				$search_by = array( 'user_login', 'xrpl_address.meta_value' );
+
+				// apply to the query
+				$query->query_where = 'WHERE 1=1' . $query->get_search_sql( $search_query, $search_by, 'both' );
+			}
+		}
 	}
 
 	public function xl_save_custom_user_profile_fields( $user_id ){
