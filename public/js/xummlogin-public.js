@@ -33,6 +33,10 @@
 			// Get wallets based on that index
 			show_wallets(group_index);
 		});
+		
+		$('.xl-button-signout a').click(function(e){
+			return confirm('Are you sure?');
+		});		
 	});
 
 	function show_wallets(group_index){
