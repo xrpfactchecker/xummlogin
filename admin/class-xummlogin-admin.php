@@ -63,7 +63,9 @@ class Xummlogin_Admin {
 
 		// Init the setting
 		add_action( 'admin_init', array( $this, 'xummlogin_display_api_fields' ) );
-		add_action( 'admin_init', array( $this, 'xummlogin_display_project_fields' ) );
+		add_action( 'admin_init', array( $this, 'xummlogin_display_token1_fields' ) );
+		add_action( 'admin_init', array( $this, 'xummlogin_display_token2_fields' ) );
+		add_action( 'admin_init', array( $this, 'xummlogin_display_website_fields' ) );
 		add_action( 'admin_init', array( $this, 'xummlogin_display_richlist_fields' ) );
 		add_action( 'admin_init', array( $this, 'xummlogin_display_username_fields' ) );		
 		add_action( 'admin_init', array( $this, 'xummlogin_display_voting_fields' ) );
@@ -227,23 +229,23 @@ class Xummlogin_Admin {
 		);
 	}
 	
-	public function xummlogin_display_project_fields() {
+	public function xummlogin_display_token1_fields() {
 
 			// Add Project Details Section
 		add_settings_section(
-			'xummlogin_project',
-			'Project Details',
-			[ $this, 'xummlogin_display_project_info' ],
+			'xummlogin_token1',
+			'Main Token',
+			[ $this, 'xummlogin_display_token1_info' ],
 			'xummlogin_general_settings'
 		);		
 
 		// Add Project Issuer Field
 		add_settings_field(
 			'xummlogin_trustline_currency',
-			'Trustline Currency',
+			'Currency Code',
 			[ $this, 'xummlogin_render_settings_field' ],
 			'xummlogin_general_settings',
-			'xummlogin_project', [
+			'xummlogin_token1', [
 				'id'          => 'xummlogin_trustline_currency',
 				'name'        => 'xummlogin_trustline_currency',
 				'description' => 'Respect the case sensitivity; MyCoin and MYCOIN are different currency on the ledger. No hex code needed.'
@@ -257,10 +259,10 @@ class Xummlogin_Admin {
 		// Add Project Issuer Field
 		add_settings_field(
 			'xummlogin_trustline_issuer',
-			'Trustline Issuer',
+			'Issuer',
 			[ $this, 'xummlogin_render_settings_field' ],
 			'xummlogin_general_settings',
-			'xummlogin_project', [
+			'xummlogin_token1', [
 				'id'          => 'xummlogin_trustline_issuer',
 				'name'        => 'xummlogin_trustline_issuer',
 				'description' => 'XRPL address for the main trustline.' .
@@ -276,10 +278,10 @@ class Xummlogin_Admin {
 		// Add Project Issuer Field
 		add_settings_field(
 			'xummlogin_trustline_limit',
-			'Trustline Limit',
+			'Limit',
 			[ $this, 'xummlogin_render_settings_field' ],
 			'xummlogin_general_settings',
-			'xummlogin_project', [
+			'xummlogin_token1', [
 				'id'          => 'xummlogin_trustline_limit',
 				'name'        => 'xummlogin_trustline_limit'
 			]
@@ -288,7 +290,80 @@ class Xummlogin_Admin {
 			'xummlogin_general_settings',
 			'xummlogin_trustline_limit'
 		);
+	}
+	
+	public function xummlogin_display_token2_fields() {
 
+			// Add Project Details Section
+		add_settings_section(
+			'xummlogin_token2',
+			'Secondary Token',
+			[ $this, 'xummlogin_display_token2_info' ],
+			'xummlogin_general_settings'
+		);		
+
+		// Add Project Issuer Field
+		add_settings_field(
+			'xummlogin_token2_currency',
+			'Currency Code',
+			[ $this, 'xummlogin_render_settings_field' ],
+			'xummlogin_general_settings',
+			'xummlogin_token2', [
+				'id'          => 'xummlogin_token2_currency',
+				'name'        => 'xummlogin_token2_currency',
+				'description' => 'Respect the case sensitivity; MyCoin and MYCOIN are different currency on the ledger. No hex code needed.'
+			]
+		);
+		register_setting(
+			'xummlogin_general_settings',
+			'xummlogin_token2_currency'
+		);
+
+		// Add Project Issuer Field
+		add_settings_field(
+			'xummlogin_token2_issuer',
+			'Issuer',
+			[ $this, 'xummlogin_render_settings_field' ],
+			'xummlogin_general_settings',
+			'xummlogin_token2', [
+				'id'          => 'xummlogin_token2_issuer',
+				'name'        => 'xummlogin_token2_issuer',
+				'description' => 'XRPL address for the main trustline.' .
+					( get_option('xummlogin_token2_issuer') != '' ? ' <a href="https://xrpscan.com/account/' . get_option('xummlogin_token2_issuer') . '" target="_blank">Open on XRPScan</a>.' : '')
+			]
+		);
+		register_setting(
+			'xummlogin_general_settings',
+			'xummlogin_token2_issuer'
+		);
+
+
+		// Add Project Issuer Field
+		add_settings_field(
+			'xummlogin_token2_limit',
+			'Limit',
+			[ $this, 'xummlogin_render_settings_field' ],
+			'xummlogin_general_settings',
+			'xummlogin_token2', [
+				'id'          => 'xummlogin_token2_limit',
+				'name'        => 'xummlogin_token2_limit'
+			]
+		);
+		register_setting(
+			'xummlogin_general_settings',
+			'xummlogin_token2_limit'
+		);
+	}
+	
+	public function xummlogin_display_website_fields() {
+
+			// Add Project Details Section
+		add_settings_section(
+			'xummlogin_website',
+			'Website Settings',
+			[ $this, 'xummlogin_display_website_info' ],
+			'xummlogin_general_settings'
+		);		
 
 		// Add Voting TX Fee Field
 		add_settings_field(
@@ -296,7 +371,7 @@ class Xummlogin_Admin {
 			'TrustSet Fee (in drops)',
 			[ $this, 'xummlogin_render_settings_field' ],
 			'xummlogin_general_settings',
-			'xummlogin_project', [
+			'xummlogin_website', [
 				'id'          => 'xummlogin_trustline_fee',
 				'name'        => 'xummlogin_trustline_fee',
 				'placeholder' => DEFAULT_FEE_TX,
@@ -315,7 +390,7 @@ class Xummlogin_Admin {
 			'Login Option',
 			[ $this, 'xummlogin_render_settings_field' ],
 			'xummlogin_general_settings',
-			'xummlogin_project', [
+			'xummlogin_website', [
 				'id'          => 'xummlogin_replace_form',
 				'name'        => 'xummlogin_replace_form',
 				'description' => 'Check this option to replace the standard WordPress login form with the XUMM login button.',
@@ -335,7 +410,7 @@ class Xummlogin_Admin {
 			'User Account',
 			[ $this, 'xummlogin_render_settings_field' ],
 			'xummlogin_general_settings',
-			'xummlogin_project', [
+			'xummlogin_website', [
 				'id'          => 'xummlogin_create_user',
 				'name'        => 'xummlogin_create_user',
 				'description' => 'Check this option to automatically create a user account and auto log them in when someone logs with XUMM and doesn\'t have an associated user account.',
@@ -355,7 +430,7 @@ class Xummlogin_Admin {
 			'Avatar Option',
 			[ $this, 'xummlogin_render_settings_field' ],
 			'xummlogin_general_settings',
-			'xummlogin_project', [
+			'xummlogin_website', [
 				'id'          => 'xummlogin_replace_avatar',
 				'name'        => 'xummlogin_replace_avatar',
 				'description' => 'Check this option to replace the WordPress avatar for the XRPL avatar from XUMM.',
@@ -841,8 +916,16 @@ class Xummlogin_Admin {
 		echo '<p>An API Key and API Secret is required to use this plugin. You can get one here: <a href="https://apps.xumm.dev/" target="_blank">https://apps.xumm.dev/</a>.</p>';
 	}
 
-	public function xummlogin_display_project_info() {
-		echo '<p>Details about the project and its trustline\'s information.</p>';
+	public function xummlogin_display_token1_info() {
+		echo '<p>XRPL information for the main token. <strong>Voting only works with the main token.</strong></p>';
+	}
+
+	public function xummlogin_display_token2_info() {
+		echo '<p>XRPL information for the second token.</p>';
+	}	
+
+	public function xummlogin_display_website_info() {
+		echo '<p>Settings for various features on for the website.</p>';
 	}
 
 	public function xummlogin_display_richlist_info() {
