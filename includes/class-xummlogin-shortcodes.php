@@ -405,6 +405,7 @@ class Xummlogin_ShortCodes{
 
     // Get some settings
     $currency          = get_option('xummlogin_trustline_currency');
+    $token2_currency   = get_option('xummlogin_token2_currency');
     $rank_levels       = get_option('xummlogin_rank_levels');
     $rank_tiers        = get_option('xummlogin_rank_tiers');
     $excluded_wallets  = get_option('xummlogin_excluded_wallets');
@@ -412,13 +413,15 @@ class Xummlogin_ShortCodes{
     // Merge params
     extract(shortcode_atts(array(
      'type'      => 'flat',
+     'token'     => 'primary',
      'infinity'  => '∞',
      'count'     => '100',
      'precision' => '4'
     ), $atts));
 
     // Get the wallet's balances from the cached file
-    $holders = (array)Xummlogin_utils::xummlogin_load_data('balances_' . strtolower($currency));
+    $richlist_currency = ( $token == 'primary' ) ? $currency : $token2_currency;
+    $holders = (array)Xummlogin_utils::xummlogin_load_data('balances_' . strtolower($richlist_currency));
 
     // Sort descending
     arsort($holders);    
@@ -489,7 +492,7 @@ class Xummlogin_ShortCodes{
             $output .= '<td>' . ($rank_tiers != '' ? $group['tier'] . ' <span>(' . count($group['wallets']) . ')' : count($group['wallets'])) . '</span></td>';
             $output .= '<td>' . $group['min'] . '</td>';
             $output .= '<td>' . ( !is_null($group['max']) ? $group['max'] : $infinity ) . '</td>';
-            $output .= '<td>' . number_format($group['total'], $precision) . ' ' . $currency . '</td>';
+            $output .= '<td>' . number_format($group['total'], $precision) . ' ' . $richlist_currency . '</td>';
           $output .= '</tr>';
           $output .= '<tr style="display:none;"><td colspan="4"></tr>';
         $output .= '</tbody>';
@@ -498,7 +501,7 @@ class Xummlogin_ShortCodes{
       $output .= '</table>';
 
       // Output the holder's array in JS for the expanding when clicking on the row
-      wp_localize_script($this->plugin_name, 'currency', [$currency]);
+      wp_localize_script($this->plugin_name, 'currency', [$richlist_currency]);
       wp_localize_script($this->plugin_name, 'precision', [$precision]);
       wp_localize_script($this->plugin_name, 'holders', $groups);
     }
@@ -532,7 +535,7 @@ class Xummlogin_ShortCodes{
           $output .= '<tr' . $row_class . '>';
             $output .= '<td>' . $rank . '</td>';
             $output .= '<td>' . $holder_wallet . '</td>';
-            $output .= '<td>' . number_format($holder_balance, $precision) . ' ' . $currency . '</td>';
+            $output .= '<td>' . number_format($holder_balance, $precision) . ' ' . $richlist_currency . '</td>';
           $output .= '</tr>';
 
           // Stop once we reach the number needed

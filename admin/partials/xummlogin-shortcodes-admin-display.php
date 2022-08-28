@@ -355,6 +355,11 @@
                 </tr>
               </thead>
               <tbody>
+              <tr>
+                  <td><code>token</code></td>
+                  <td>No</td>
+                  <td>The token to use for the Richlist: <code>primary</code> or <code>secondary</code>. Default is <code>primary</code>.</td>
+                </tr>                
                 <tr>
                   <td><code>type</code></td>
                   <td>No</td>
