@@ -234,7 +234,7 @@ class Xummlogin_Admin {
 			// Add Project Details Section
 		add_settings_section(
 			'xummlogin_token1',
-			'Main Token',
+			'Primary Token',
 			[ $this, 'xummlogin_display_token1_info' ],
 			'xummlogin_general_settings'
 		);		
@@ -917,7 +917,7 @@ class Xummlogin_Admin {
 	}
 
 	public function xummlogin_display_token1_info() {
-		echo '<p>XRPL information for the main token. <strong>Voting only works with the main token.</strong></p>';
+		echo '<p>XRPL information for the primary token. <strong>Voting only works with the primary token.</strong></p>';
 	}
 
 	public function xummlogin_display_token2_info() {
