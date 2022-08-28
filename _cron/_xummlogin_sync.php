@@ -45,6 +45,8 @@ $voting_wallet         = $database->wp_get_option('xummlogin_voting_wallet');
 $voting_wallet_minimum = (int)$database->wp_get_option('xummlogin_voting_vote_minimum');
 $voters_currency       = $database->wp_get_option('xummlogin_trustline_currency');
 $voters_trustline      = $database->wp_get_option('xummlogin_trustline_issuer');
+$token2_currency       = $database->wp_get_option('xummlogin_token2_currency');
+$token2_trustline      = $database->wp_get_option('xummlogin_token2_issuer');
 $ledger_index_start    = (int)$database->wp_get_option('xummlogin_voting_active_start_ledger');
 $ledger_index_end      = (int)$database->wp_get_option('xummlogin_voting_active_end_ledger');
 
@@ -130,6 +132,19 @@ else{
   if( count($balances) > 0 ){
     save_data('balances_' . strtolower($voters_currency), $balances);  
   }
+}
+
+// Fetch trustline balances for secondary token if needed
+if( $token2_currency != '' && $token2_trustline != '' ){
+
+  // Fetch in progress balances for this trustline from xrpscan api
+  $second_token_balances = fetch_tls($token2_trustline, $token2_currency);
+
+  // Save to file
+  if( count($second_token_balances) > 0 ){
+    save_data('balances_' . strtolower($token2_currency), $second_token_balances);  
+  }
+
 }
 
 /**
