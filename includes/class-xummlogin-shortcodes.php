@@ -42,6 +42,7 @@ class Xummlogin_ShortCodes{
     add_shortcode('xummtoken'   , [$this, 'xummlogin_token_price']);
     add_shortcode('xummuser'    , [$this, 'xummlogin_user_info']);
     add_shortcode('xummrichlist', [$this, 'xummlogin_rich_list']);
+    add_shortcode('xummrichlist2', [$this, 'xummlogin_rich_list2']);
 	}
 
   public function xummlogin_force_login( $content ){
@@ -190,6 +191,7 @@ class Xummlogin_ShortCodes{
     // Get some settings
     $has_active_vote   = (int)get_option('xummlogin_voting_active_start_ledger') != 0;    
     $currency          = get_option('xummlogin_trustline_currency');
+    $token2_currency   = get_option('xummlogin_token2_currency');
     $rank_levels       = get_option('xummlogin_rank_levels');
     $rank_tiers        = get_option('xummlogin_rank_tiers');
     $excluded_wallets  = get_option('xummlogin_excluded_wallets');
@@ -197,6 +199,7 @@ class Xummlogin_ShortCodes{
     // Merge params
     extract(shortcode_atts(array(
      'return'   => 'card',
+     'token'    => 'primary',
      'trade'    => 'true',
      'wallet'   => ''
     ), $atts));
@@ -207,7 +210,8 @@ class Xummlogin_ShortCodes{
     }
 
     // Get the wallet's balances from the cached file
-    $saved_balances = (array)Xummlogin_utils::xummlogin_load_data('balances_' . strtolower($currency));
+    $balance_currency = ( $token == 'primary' ) ? $currency : $token2_currency;
+    $saved_balances   = (array)Xummlogin_utils::xummlogin_load_data('balances_' . strtolower($balance_currency));
 
     // If there's still no wallet, we'll show a login avatar with an emppty card
     $has_wallet = ($wallet != '');
@@ -319,7 +323,7 @@ class Xummlogin_ShortCodes{
         break;
 
       case 'balance':
-        return '<div class="xl-card-balance">' . round($balance, 4) . ' ' . $currency . '</div>';
+        return '<div class="xl-card-balance">' . round($balance, 4) . ' ' . $balance_currency . '</div>';
         break;
 
       case 'avatar':
@@ -354,7 +358,7 @@ class Xummlogin_ShortCodes{
 
         if( $trade == 'true' ){
           $issuer        = get_option('xummlogin_trustline_issuer');
-          $currency_code = Xummlogin_utils::xummlogin_currency( $currency );
+          $currency_code = Xummlogin_utils::xummlogin_currency( $balance_currency );
 
           $trade_link = ' &bull; <a href="https://xumm.app/detect/xapp:xumm.dex?base=' . $currency_code . '+' . $issuer . '&quote=xrp" target="_blank" title="' . __('Trade on the XUMM DEX xApp!') . '">' . __('Trade') . '</a>';
         }
@@ -370,7 +374,7 @@ class Xummlogin_ShortCodes{
             '</div>' .
             '<div class="xl-card-body">' .
               '<div class="xl-card-avatar"><a href="' . $signin_url . '"><img class="xl-card-avatar" width="65" height="65" src="' . $avatar . '"></a></div>' .
-              '<div class="xl-card-balance"><strong>' . __('Balance') . ': </strong>' . round($balance, 4) . ' ' . $currency . $trade_link . '</div>' .
+              '<div class="xl-card-balance"><strong>' . __('Balance') . ': </strong>' . round($balance, 4) . ' ' . $balance_currency . $trade_link . '</div>' .
               '<div class="xl-card-rank"><strong>' . __('Rank') . ': </strong>' . $rank . ' / ' . count($saved_balances) . '</div>';
 
               // Add level if any
@@ -550,6 +554,149 @@ class Xummlogin_ShortCodes{
       // Close table
       $output .= '</tbody>';        
       $output .= '</table>';
+    }
+
+    return $output;
+  }
+
+  public function xummlogin_rich_list2( $atts = array() ) {
+
+    // Get some settings
+    $currency          = get_option('xummlogin_trustline_currency');
+    $rank_levels       = get_option('xummlogin_rank_levels');
+    $rank_tiers        = get_option('xummlogin_rank_tiers');
+    $excluded_wallets  = get_option('xummlogin_excluded_wallets');
+
+    // Merge params
+    extract(shortcode_atts(array(
+     'type'      => 'flat',
+     'infinity'  => '∞',
+     'count'     => '100',
+     'precision' => '4'
+    ), $atts));
+
+    // Get the wallet's balances from the cached file
+    $holders = (array)Xummlogin_utils::xummlogin_load_data('balances_' . strtolower($currency));
+
+    // Sort descending
+    arsort($holders);    
+
+    // Get a saved wallet if any
+    $wallet = Xummlogin_utils::xummlogin_get_user_wallet();
+
+    // Start by removing the excluded wallets from the list of holders
+    if( $excluded_wallets != '' ){
+      $excluded_wallets = array_map('trim', explode(',', $excluded_wallets));
+
+      // Go through each one and remove them from the array that's use for the ranking
+      foreach ($excluded_wallets as $excluded_wallet) {
+        unset( $holders[ $excluded_wallet ] );
+      }
+    }
+
+    // Check list style, with groupings or flat
+    if( $type != 'flat' && $rank_levels != '' ){
+
+      // Initialie the groupings based on the ranks and levels
+      $groups = Xummlogin_utils::xummlogin_initialize_richlist_grouping($rank_levels, $rank_tiers);
+
+      // Go through holder's balance and add to respective groups
+      foreach ($holders as $holder_wallet => $holder_balance) {
+
+        // Go through each group and insert in the proper one
+        foreach ($groups as &$group) {
+
+          // Check the wallet's balance against the group's min and max
+          if( (float)$holder_balance >= (float)$group['min'] && ( is_null( $group['max'] ) || (float)$holder_balance < (float)$group['max'] ) ){
+
+            // Add to group's wallet
+            $group['wallets'][] = [
+              $holder_wallet => $holder_balance
+            ];
+
+            // Update group's total
+            $group['total'] += $holder_balance;
+
+            // Stop checking for groups
+            break;
+          }
+        }
+      }
+
+      // Remove reference so we can reuse
+      unset($group);
+
+      // Reverse group to show largest to smallest
+      $groups = array_reverse($groups);
+
+      // Group table headings
+      $output  = '<div class="xl-richlist xl-richlist-tiers">';
+        $output .= '<div class="xl-richlist-header">';
+          $output .= '<div' . ($rank_tiers != '' ? __('Tiers') : __('# Accounts')) . '</div';
+          $output .= '<div' . __('Balance From') . '</div';
+          $output .= '<div' . __('To') . '</div';
+          $output .= '<div' . __('Total') . '</div';
+        $output .= '</div>';
+
+      // Go through each group and output
+      foreach ($groups as $group) {
+        $output .= '<div class="xl-richlist-row">';
+          $output .= '<div>' . ($rank_tiers != '' ? $group['tier'] . ' <span>(' . count($group['wallets']) . ')' : count($group['wallets'])) . '</span></div>';
+          $output .= '<div>' . $group['min'] . '</div>';
+          $output .= '<div>' . ( !is_null($group['max']) ? $group['max'] : $infinity ) . '</div>';
+          $output .= '<div>' . number_format($group['total'], $precision) . ' ' . $currency . '</div>';
+          $output .= '<div style="display:none;"></div>';
+        $output .= '</div>';
+        
+      }
+      $output .= '</div>';
+
+      // Output the holder's array in JS for the expanding when clicking on the row
+      wp_localize_script($this->plugin_name, 'currency', [$currency]);
+      wp_localize_script($this->plugin_name, 'precision', [$precision]);
+      wp_localize_script($this->plugin_name, 'holders', $groups);
+    }
+    // Output a flat ranking list
+    else{
+      
+      // Go through each wallet and output
+      $output  = '<div class="xl-richlist xl-richlist-flat">';
+        $output .= '<div class="xl-richlist-header">';
+          $output .= '<th>' . __('Wallets') . '</th>';
+          $output .= '<th>' . __('Balance') . '</th>';
+        $output .= '</div>';
+
+        // Var to hold progress
+        $holders_count = 0;
+        $last_balance  = 0;
+
+        // Go through each holders and output until we reach the limit
+        foreach ($holders as $holder_wallet => $holder_balance) {
+
+          // Get the rank based if there's a new balance or tied with the previous one
+          $rank = ($holder_balance != $last_balance) ? $holders_count + 1 : $rank;
+
+          // Check if this holder matches the saved wallet
+          $row_class = ($holder_wallet == $wallet) ? ' class="xl-is-user"' : '';
+
+          // Setup row
+          $output .= '<div' . $row_class . '>';
+            $output .= '<div>' . $rank . '</div>';
+            $output .= '<div>' . $holder_wallet . '</div>';
+            $output .= '<div>' . number_format($holder_balance, $precision) . ' ' . $currency . '</div>';
+          $output .= '</div>';
+
+          // Stop once we reach the number needed
+          if( ++$holders_count == $count ){
+            break;
+          }
+
+          // Keep track of the last balance
+          $last_balance = $holder_balance;
+        }
+      
+      // Close div
+      $output .= '</div>';
     }
 
     return $output;
