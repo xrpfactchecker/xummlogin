@@ -394,27 +394,28 @@ class Xummlogin_XUMM{
 
 				case ACTION_SIGNIN:
 					$this::xummlogin_process_signin( $response );
+					unset($_SESSION['payload']);			
 					break;
 				
 				case ACTION_TRUSTLINE:
 					$this::xummlogin_process_trustline( $response );
+					unset($_SESSION['payload']);			
 					break;
 
 				case ACTION_PAYMENT:
 					$this::xummlogin_process_payment( $response );
+					unset($_SESSION['payload']);			
 					break;
 
 				case ACTION_VOTING:
 					$this::xummlogin_process_voting( $response );
+					unset($_SESSION['payload']);			
 					break;
 
 				default:
 					break;
 			}
 		}
-
-		// Clear payload
-		unset($_SESSION['payload']);
 	}
 
 	public function xummlogin_process_signin($response) {

@@ -169,7 +169,7 @@ class Xummlogin_utils{
     return $body;
   }
 
-  static function xummlogin_post_to_xumm($request, $return_url, $request_label){
+  static function xummlogin_post_to_xumm($request, $return_url, $request_label, $redirect = true){
 
     global $xumm_messaging;
 
@@ -218,7 +218,12 @@ class Xummlogin_utils{
       }
       else{
         $goto_url = $body['next']['always'];
-        wp_redirect($goto_url);
+        if( $redirect ){
+          wp_redirect($goto_url);
+        }
+        else{
+          echo $goto_url;
+        }
         exit;
       }
     }
@@ -234,7 +239,6 @@ class Xummlogin_utils{
   }
 
   static function xummlogin_add_request_memo(&$request, $memos){
-
     // Make sure we have a memo to parse
     if( is_array($memos) && count($memos) > 0 ){
 
@@ -242,7 +246,6 @@ class Xummlogin_utils{
       $request['txjson']['Memos'] = [];
 
       // Explode in case we have multiple memo and cycle to build the memo array to send
-      $memo_temp = explode('+', $memo);
       foreach ($memos as $memo) {
         $request['txjson']['Memos'][] = [
           'Memo' => [
