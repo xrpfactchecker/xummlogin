@@ -200,6 +200,7 @@ class Xummlogin_ShortCodes{
     extract(shortcode_atts(array(
      'return'   => 'card',
      'token'    => 'primary',
+     'prefix'   => '',
      'trade'    => 'true',
      'wallet'   => ''
     ), $atts));
@@ -323,7 +324,7 @@ class Xummlogin_ShortCodes{
         break;
 
       case 'balance':
-        return '<div class="xl-card-balance">' . round($balance, 4) . ' ' . $balance_currency . '</div>';
+        return '<div class="xl-card-balance">' . number_format(round($balance, 4), 0, '.', ' ') . ' ' . $prefix . $balance_currency . '</div>';
         break;
 
       case 'avatar':
@@ -374,7 +375,7 @@ class Xummlogin_ShortCodes{
             '</div>' .
             '<div class="xl-card-body">' .
               '<div class="xl-card-avatar"><a href="' . $signin_url . '"><img class="xl-card-avatar" width="65" height="65" src="' . $avatar . '"></a></div>' .
-              '<div class="xl-card-balance"><strong>' . __('Balance') . ': </strong>' . round($balance, 4) . ' ' . $balance_currency . $trade_link . '</div>' .
+              '<div class="xl-card-balance"><strong>' . __('Balance') . ': </strong>' . number_format(round($balance, 4), 0, '.', ' ') . ' ' . $prefix . $balance_currency . $trade_link . '</div>' .
               '<div class="xl-card-rank"><strong>' . __('Rank') . ': </strong>' . $rank . ' / ' . count($saved_balances) . '</div>';
 
               // Add level if any
